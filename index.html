@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reward AI</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><polygon points='16,2 30,12 16,30 2,12' fill='%230a0a0f' stroke='%2300d4aa' stroke-width='2.5' stroke-linejoin='round'/><polygon points='2,12 16,12 16,30' fill='%23008866' stroke='none'/><polygon points='16,12 30,12 16,30' fill='%2300a884' stroke='none'/><polygon points='16,2 8,12 16,12' fill='%2300d4aa' stroke='none'/><polygon points='16,2 24,12 16,12' fill='%2300b894' stroke='none'/><polygon points='2,12 8,12 16,2' fill='%23009977' stroke='none'/><polygon points='30,12 24,12 16,2' fill='%2300c4a0' stroke='none'/><line x1='2' y1='12' x2='30' y2='12' stroke='%2300d4aa' stroke-width='2'/><line x1='16' y1='2' x2='16' y2='30' stroke='%2300d4aa' stroke-width='2'/><line x1='16' y1='2' x2='8' y2='12' stroke='%2300d4aa' stroke-width='1.5'/><line x1='16' y1='2' x2='24' y2='12' stroke='%2300d4aa' stroke-width='1.5'/><polygon points='16,2 30,12 16,30 2,12' fill='none' stroke='%2300d4aa' stroke-width='2.5' stroke-linejoin='round'/></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #0a0a0f;
+            --bg-surface: #12121a;
+            --accent-primary: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.15);
+            --text-primary: #f0f0f5;
+            --text-secondary: #8888a0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated background */
+        .background {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Floating grid pattern */
+        .grid-layer {
+            position: absolute;
+            inset: -50%;
+            background-image: 
+                linear-gradient(var(--accent-primary) 1px, transparent 1px),
+                linear-gradient(90deg, var(--accent-primary) 1px, transparent 1px);
+            background-size: 80px 80px;
+            opacity: 0.06;
+            animation: gridFloat 30s linear infinite;
+            transform: perspective(500px) rotateX(60deg);
+        }
+
+        @keyframes gridFloat {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(80px); }
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: orbFloat 12s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--accent-primary) 0%, transparent 70%);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #0066ff 0%, transparent 70%);
+            bottom: 20%;
+            right: 15%;
+            animation-delay: -4s;
+            animation-duration: 15s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #6600cc 0%, transparent 70%);
+            top: 60%;
+            left: 50%;
+            animation-delay: -8s;
+            animation-duration: 18s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -40px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(40px, 30px) scale(1.05); }
+        }
+
+        /* Horizontal scan lines */
+        .scanlines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 212, 170, 0.01) 2px,
+                rgba(0, 212, 170, 0.01) 4px
+            );
+            pointer-events: none;
+            animation: scanMove 8s linear infinite;
+        }
+
+        @keyframes scanMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        /* Particle dots */
+        .particles {
+            position: absolute;
+            inset: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFade 4s ease-in-out infinite;
+        }
+
+        @keyframes particleFade {
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            50% { opacity: 0.8; transform: translateY(-30px); }
+        }
+
+        /* Main content */
+        .content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .logo {
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { filter: drop-shadow(0 0 20px var(--accent-glow)); }
+            100% { filter: drop-shadow(0 0 40px var(--accent-glow)); }
+        }
+
+        .slogan {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            letter-spacing: 0.05em;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .coming-soon {
+            display: inline-block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+            padding: 0.75rem 2rem;
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 100px;
+            background: rgba(0, 212, 170, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coming-soon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Vignette overlay */
+        .vignette {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--bg-deep) 100%);
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="grid-layer"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="scanlines"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <div class="vignette"></div>
+
+    <main class="content">
+        <h1 class="logo">Reward AI</h1>
+        <p class="slogan">Power the massive robot AI deployment</p>
+        <span class="coming-soon">Coming Soon</span>
+    </main>
+
+    <script>
+        // Generate random particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 30;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 4 + 's';
+            particle.style.animationDuration = (3 + Math.random() * 3) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
+
